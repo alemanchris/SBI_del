@@ -1,1 +1,18 @@
+ Version 1.0 (This version is not public, please refrain from sharing)
+ This version is still preliminary and incomplete, for the complete version please refer
+ to MATLAB version 3.1 SBI_norm.m
+ sbinorm, runs the Stage Based Identification routine descrived in 
+ Aleman,  Busch,  Ludwig,  and  Santaeul`alia-Llopis  (2020)  
+ Please address any comments to christian.c.aleman[at]gmail.com
+
+ For an illustration of the code run EXAMPLE_1_EXT.do
+ 
+This example uses inbuild data of life expectancy, runs SBI to campture the effect of the   Food and Drug Administration (FDA) approval of the MMR vaccine (measles, mumps, rubella)  in 1971
+
+The structure of the routine is the following: 
+sbinorm TIMESERIES_1 TIMESERIES_2, tp(YEAR_OF_POLICY_IMPLEMENTATION)
+Where: 
+ -TIMESERIES_1: Refers to the path for region/unit of analysis 1
+ -TIMESERIES_1: Refers to the path for region/unit of analysis 2
+ -YEAR_OF_POLICY: Input the year of policy implementation depending on the start of your data for example is data starts in 1946 and policy was implemented in 1971, set to to 26.
 
