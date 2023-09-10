@@ -1,17 +1,43 @@
- Version 1.0 (This version is not public, please refrain from sharing)
- This version is still preliminary and incomplete, for the complete version please refer
- to MATLAB version 3.1 SBI_norm.m
+Version 2.0 
+This version is still preliminary and incomplete, for the complete version please refer
+to the beta version in MATLAB SBI_nrm.m at  https://github.com/alemanchris/SBI_public/tree/main
+
+Copyright (C) 2023 Christian Aleman, Christopher Busch, Alexander Ludwig, Raül Santaeulalia-Llopis
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation
+
+Use this program at you own risk
+
+ATTENTION! 
+BEFORE YOU RUN THIS ROUTINE MAKE SURE YOU HAVE THE FOLLOWING: 
+-Time series data for two regions, save your data in the /input/ folder.
+-Date of NATIONWIDE policy implementation. (tp)
+
+Technical Requirements: 
+(1)This routine has been tested using STATA 14
  sbinorm, runs the Stage Based Identification routine descrived in 
- Aleman,  Busch,  Ludwig,  and  Santaeul`alia-Llopis  (2020)  
- Please address any comments to christian.c.aleman[at]gmail.com
+ Aleman,  Busch,  Ludwig,  and  Santaeul`alia-Llopis  (2023)  
+ Please address any comments to sbi.qa.method@gmail.com.
 
- For an illustration of the code run EXAMPLE_1_EXT.do
+---------------------------
+SYNTAX of sbinrm 
+---------------------------
+sbirnrm varlist, options
  
-This example uses inbuild data of life expectancy, runs SBI to campture the effect of the   Food and Drug Administration (FDA) approval of the MMR vaccine (measles, mumps, rubella)  in 1971
+varlist: 
+- time: time variable (in years, months, etc)
+- out1: Outcome for region 1
+- out2: Outcome for region 2 
 
-The structure of the routine is the following: 
-sbinorm TIMESERIES_1 TIMESERIES_2, tp(YEAR_OF_POLICY_IMPLEMENTATION)
-Where: 
- -TIMESERIES_1: Refers to the path for region/unit of analysis 1
- -TIMESERIES_1: Refers to the path for region/unit of analysis 2
- -YEAR_OF_POLICY: Input the year of policy implementation depending on the start of your data for example is data starts in 1946 and policy was implemented in 1971, set to to 26.
+options: 
+- tp: time of policy implementation 
+- np: number of normalization parameters, either 3 or 4
+- sp: smoothing indicator, 1: Smooth (pre-policy) outcome or 0: No smoothing
+
+List of points left to implement for the next version: 
+- Automatic detection of leading region
+- Confidence bands
+- Placebo tests
+
+
