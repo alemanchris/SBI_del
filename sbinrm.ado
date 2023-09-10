@@ -254,8 +254,7 @@ void SBI_parse(string scalar indepvars,  string scalar touse, tua, nup, smoa){
 	
 		tup1 = tu+1
 
-		s2L = ("TILL HERE FINE:")
-		printf("\n%s\n",s2L)
+
 
 		yC_aux1 = yC[tup1..nt,1]
 		yT_aux1 = yT[tup1..nt,1]
@@ -279,7 +278,7 @@ void SBI_parse(string scalar indepvars,  string scalar touse, tua, nup, smoa){
 		
 		// Initial guess 
  		if (nm==4){
-			x0 = (0,0.91,5,1.05)		
+			x0 = (2,0.1,13,0.9)		
 		}
 		 else{
 			x0 = (0.8665,-4.6221,1.5817)
