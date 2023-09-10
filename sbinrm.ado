@@ -208,6 +208,38 @@ for (i=2; i<=(nt); i++){
 return(fx)
 }
 //-----------------------------------------------------------------------------
+function anpol3(tau,time,dataC,dataT)
+{
+	t0 = J(tau,1,1)
+	t1 = time[1..tau,1]
+	t2 = time[1..tau,1]:^2
+	t3 = time[1..tau,1]:^3
+	t4 = time[1..tau,1]:^4
+	X = t0,t1,t2,t3
+	YC = dataC[1..tau,1]
+	YT = dataT[1..tau,1]
+	pDC = invsym((X'*X))*(X'*YC)
+	pDT = invsym((X'*X))*(X'*YT)
+	auxh2 = (pDT[4,1]:/pDC[4,1]):*(pDC[2,1]:-((1:/3):*(pDC[3,1]:^2):/pDC[4,1]))
+	auxh4 = (1/3):*((pDT[3]):^2):/pDT[4]:-pDT[2]
+	// Get the inverse
+	psi1 = (auxh2/(-auxh4))^0.5
+	psi0 = (1:/3):*(pDT[3]:/pDT[4]:*psi1):-(1:/3):*(pDC[3]:/pDC[4])
+	alt_w1 = pDT[4]:/(pDC[4]:*psi1:^3)
+	alt_w0 = pDT[1]-(alt_w1*(pDC[1]+pDC[2]*psi0+pDC[3]*psi0^2+pDC[4]*psi0^3))
+	om0 = alt_w0
+	om1 = alt_w1
+	psi0 = (-psi0/psi1)
+	psi1 = 1/psi1
+	phi = J(4,1,1)
+	phi[1,1] = om0
+	phi[2,1] = om1
+	phi[3,1] = psi0
+	phi[4,1] = psi1
+return(phi)
+}
+
+//-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 //**************************************************************
@@ -221,18 +253,25 @@ void SBI_parse(string scalar indepvars,  string scalar touse, tua, nup, smoa){
 		// Smoother indicator	1: Smooth 0:No Smoothing			
 		smo =  smoa
 
-		// Adjust time 	
-		time_o = data_mat[.,1]
-		min_time = time_o[1,1]
-		time_adjust = (min_time)-1
-		time = time_o:-time_adjust
-
 		// Get time
-                nt = rows(time)
+		time_o = data_mat[.,1]
+                nt = rows(time_o)
+		time = range(1,nt,1)
 
-		// Adjust Policy date					
-		tu =  tua:-time_adjust
 
+		// Adjust time 	
+		
+		//min_time = time_o[1,1]
+		//time_adjust = (min_time)-1
+		//time = time_o:-time_adjust
+
+
+		// Adjust Policy date
+		//tu =  tua:-time_adjust
+
+		I = time_o:<=tua
+		tu = sum(I)   
+		
 		// Rename outcome	
 		yC = data_mat[.,2]
 		yT = data_mat[.,3]
@@ -278,14 +317,49 @@ void SBI_parse(string scalar indepvars,  string scalar touse, tua, nup, smoa){
 		
 		// Initial guess 
  		if (nm==4){
-			x0 = (2,0.1,13,0.9)		
+			x0 = (2.78,0.27,13.38,0.914)
+			x0 = (2.5,0.1,10,0.9)
+ 			x0 = anpol3(tu,time,yC_smo,yT_smo)
+
+			if (x0[1,1]==.){
+
+				x0 = J(1,4,1)
+				x0[1,1] = 0
+				aux1 = max(yT_smo[.,1])
+				aux2 = max(yC_smo[.,1])
+
+				x0[1,2] = aux1/aux2
+				I = yT_smo:<=yC_smo[tu,1]
+				pos_del = sum(I) 
+				aux3 = tu-pos_del
+				x0[1,3] = abs(aux3)*(3/4)
+				x0[1,4] = 1
+			}
+			else{
+				x0 = x0'
+			}
+
+			if (x0[1,2]<=0){
+				x0[1,1] = 0
+				aux1 = max(yT_smo[.,1])
+				aux2 = max(yC_smo[.,1])
+				x0[1,2] = aux1/aux2
+				I = yT_smo:<=yC_smo[tu,1]
+				pos_del = sum(I) 
+				aux3 = tu-pos_del
+				x0[1,3] = abs(aux3)*(3/4)
+				x0[1,4] = 1
+
+			}
+			else{
+				x0 = x0
+			}
+		
 		}
 		 else{
-			x0 = (0.8665,-4.6221,1.5817)
-			x0 = (0.8338,-1.0306,1.2243)
 			x0 = (0.9,0,1.1)
 		}
-		
+
 		
 		 // Perform minimization
 		 s=optimize_init()
@@ -396,10 +470,11 @@ void SBI_parse(string scalar indepvars,  string scalar touse, tua, nup, smoa){
 		}
 
 
+		tu_norm_adjust = interp1(time,time_o,tu_norm)
 
 		gamma_val = strofreal(gamma_val[1,1])
 		olp_s = strofreal(olp[1,1])
-		stp   = strofreal(tu_norm+time_adjust)
+		stp   = strofreal(tu_norm_adjust)
 
 
 		s00 = ("omega_0 =",om0)		
@@ -445,8 +520,11 @@ void SBI_parse(string scalar indepvars,  string scalar touse, tua, nup, smoa){
 	// Before and after Normalization
 
 	ldta = rows(time)
-	time = time:+time_adjust
-	tvec = tvec:+time_adjust
+	time_nn = time
+	time = time_o
+	tvec = interp1(time_nn,time_o,tvec)
+	//time = time:+time_adjust
+	//tvec = tvec:+time_adjust
 	stata("clear")
 	st_addobs(ldta)
 	(void) st_addvar("float","YCS")
@@ -479,7 +557,8 @@ void SBI_parse(string scalar indepvars,  string scalar touse, tua, nup, smoa){
 	// Cummulative Policy Effect \gamma(s)
 
 	ldta = rows(gamma_s)
-	time_s = time_s:+time_adjust
+	//time_s = time_s:+time_adjust
+	time_s = interp1(time_nn,time_o,time_s)
 	stata("clear")
 	st_addobs(ldta)
 	(void) st_addvar("float","Y")
