@@ -1,1 +1,0 @@
-gen dert = 4
