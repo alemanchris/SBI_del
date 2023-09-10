@@ -57,7 +57,7 @@ sbinrm  time reg1 rest, tp(1960) np(3) sp(1)
 * Load saved data
 clear all
 use dat_NM
-replace XN = . if XN==-99999
+qui: replace XN = . if XN==-99999
 
 * Graph Before Normalization
 graph twoway (line YCS X if X<=1960, sort  lcolor(blue) lwidth(medium)) (line YTS X if X<=1960, sort lcolor(red) lwidth(medium)) (scatter YC X, sort  mcolor(blue) ) (scatter YT X, sort mcolor(red)), xline(1960) legend(on order(3 "yC(t): REG1"  4 "yT(t): REST") size(large) ring(0) bplacement(north)) name(graph_before, replace)  ylabel(0.05[0.04] 0.3, labsize(vlarge)) xtitle("Year", size(vlarge)) xlabel(1934[10]1974, labsize(vlarge)) ytitle("My Outcome", size(vlarge))
@@ -68,7 +68,7 @@ graph twoway (line YCNS XN if XN<=1960, sort  lcolor(blue) lwidth(medium)) (line
 * Graph Policy effect
 clear all
 use dat_PE
-replace X = . if X==-99999
+qui: replace X = . if X==-99999
 graph twoway (connected Y X if X>=1954, sort  mcolor(black) lcolor(black) lwidth(thick)) , yline(0) xline(1960) xline(1970.502) legend(on order(1 "\gamma(s)") size(large) ring(0) bplacement(north)) name(graph_gamma, replace)  ylabel(0[0.1] 0.25, labsize(vlarge)) xtitle("Stage", size(vlarge)) xlabel(1954[5]1974, labsize(vlarge)) ytitle("\gamma(s)", size(vlarge))
 
 
